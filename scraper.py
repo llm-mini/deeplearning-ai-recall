@@ -17,15 +17,32 @@ def clean_slug(text):
 def fetch_webpage(url):
     print(f"Fetching: {url}")
     headers = {
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36",
+        "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8",
+        "Accept-Language": "en-US,en;q=0.9",
+        "Accept-Encoding": "gzip, deflate, br",
+        "Connection": "keep-alive",
+        "Upgrade-Insecure-Requests": "1",
+        "Sec-Fetch-Dest": "document",
+        "Sec-Fetch-Mode": "navigate",
+        "Sec-Fetch-Site": "none",
+        "Sec-Fetch-User": "?1"
     }
     try:
-        response = httpx.get(url, headers=headers, follow_redirects=True, timeout=15.0)
+        # Enable HTTP/2 or fallback if not installed
+        client = httpx.Client(http2=True)
+        response = client.get(url, headers=headers, follow_redirects=True, timeout=15.0)
         response.raise_for_status()
         return response.text
     except Exception as e:
-        print(f"Error fetching webpage: {e}")
-        return None
+        print(f"HTTP/2 fetch failed or not supported, retrying with standard HTTP/1.1: {e}")
+        try:
+            response = httpx.get(url, headers=headers, follow_redirects=True, timeout=15.0)
+            response.raise_for_status()
+            return response.text
+        except Exception as e2:
+            print(f"Error fetching webpage: {e2}")
+            return None
 
 def parse_course_info(html_content, url):
     soup = BeautifulSoup(html_content, 'html.parser')

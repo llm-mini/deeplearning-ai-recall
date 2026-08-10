@@ -315,8 +315,8 @@ registerForm.addEventListener('submit', (e) => {
   
   // Generate GitHub Issue prefilled URL
   const repoUrl = window.location.origin + window.location.pathname; // standard GH Pages path
-  // Guess the GitHub repository URL from location
-  let githubRepo = "your-username/your-repo-name";
+  // Guess the GitHub repository URL from location, defaulting to llm-mini/deeplearning-ai-recall
+  let githubRepo = "llm-mini/deeplearning-ai-recall";
   const pathParts = window.location.pathname.split('/');
   if (window.location.hostname.includes('github.io')) {
     const username = window.location.hostname.split('.')[0];
