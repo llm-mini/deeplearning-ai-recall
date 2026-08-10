@@ -28,6 +28,26 @@ def fetch_webpage(url):
         "Sec-Fetch-Site": "none",
         "Sec-Fetch-User": "?1"
     }
+    
+    # Try with curl subprocess first, since it successfully bypasses Cloudflare TLS fingerprint blocks
+    import subprocess
+    try:
+        print("Attempting fetch via system curl...")
+        cmd = [
+            "curl", "-s", "-L",
+            "-H", "User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36",
+            "-H", "Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
+            url
+        ]
+        result = subprocess.run(cmd, capture_output=True, text=True, encoding="utf-8", errors="ignore", timeout=20)
+        if result.returncode == 0 and result.stdout.strip():
+            # Quick check if it looks like a Cloudflare block page
+            if "cf-browser-verification" not in result.stdout and "403 Forbidden" not in result.stdout:
+                return result.stdout
+            print("Curl output contained Cloudflare/403 block indicators, trying httpx...")
+    except Exception as curl_err:
+        print(f"Curl invocation failed: {curl_err}. Falling back to httpx...")
+
     try:
         # Enable HTTP/2 or fallback if not installed
         client = httpx.Client(http2=True)
@@ -35,7 +55,7 @@ def fetch_webpage(url):
         response.raise_for_status()
         return response.text
     except Exception as e:
-        print(f"HTTP/2 fetch failed or not supported, retrying with standard HTTP/1.1: {e}")
+        print(f"HTTP/2 fetch failed or not supported: {e}")
         try:
             response = httpx.get(url, headers=headers, follow_redirects=True, timeout=15.0)
             response.raise_for_status()
@@ -262,6 +282,12 @@ def process_course(url, is_specialization):
     print(f"\nSaved course data successfully to {db_path}")
 
 if __name__ == "__main__":
+    # Force UTF-8 console output for Windows to prevent charmap encoding errors
+    try:
+        sys.stdout.reconfigure(encoding='utf-8')
+    except AttributeError:
+        pass
+        
     parser = argparse.ArgumentParser(description="DeepLearning.AI Scraper & Summarizer")
     parser.add_argument("--url", required=True, help="URL of the course or specialization")
     parser.add_argument("--specialization", action="store_true", help="Set if target is a specialization")
