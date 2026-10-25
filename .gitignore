@@ -5,3 +5,11 @@ __pycache__/
 node_modules/
 transcripts/*/
 venv
+
+# Playwright logged-in session (auth cookies) — never commit
+storage_state.json
+
+# SQLite DB (rebuilt on startup)
+# *.db
+# *.db-wal
+# *.db-shm

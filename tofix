@@ -1,0 +1,3 @@
+- i see this message even after the fetch is complete, please check: Fetching transcripts in the background…
+- "Quiz" got fetched as well although it doesn't have a transcript
+fix the existing data in the DB and update the UI as well
