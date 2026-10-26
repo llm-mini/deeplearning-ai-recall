@@ -6,7 +6,6 @@ from fastapi.staticfiles import StaticFiles
 from core.database import init_db
 from routers.auth import router as auth_router
 from routers.courses import router as courses_router
-from routers.mindmap import router as mindmap_router
 
 # Initialize database schema
 init_db()
@@ -36,7 +35,6 @@ app.add_middleware(
 # Include Routers
 app.include_router(auth_router)
 app.include_router(courses_router)
-app.include_router(mindmap_router)
 
 # Serve static files from React build frontend/dist
 if os.path.exists("../frontend/dist"):

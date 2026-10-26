@@ -16,12 +16,9 @@ import {
   ChevronDown,
   ChevronRight,
   Layers,
-  GraduationCap,
-  Network,
-  List
+  GraduationCap
 } from 'lucide-react';
 import styles from './App.module.css';
-import MindMap from './MindMap';
 
 const API_BASE_URL = 'http://localhost:8000';
 
@@ -107,7 +104,6 @@ function App() {
   const [activeCourseTab, setActiveCourseTab] = useState<string>('');
   const [activeModuleIdx, setActiveModuleIdx] = useState<number>(0);
   const [activeTranscript, setActiveTranscript] = useState<{ lessonTitle: string, text: string } | null>(null);
-  const [detailView, setDetailView] = useState<'outline' | 'mindmap'>('outline');
   const [urlInput, setUrlInput] = useState('');
   const [courseType, setCourseType] = useState('short_course');
   
@@ -149,11 +145,6 @@ function App() {
   useEffect(() => {
     setActiveModuleIdx(0);
   }, [activeCourseTab, selectedCourse?.id, selectedCourse?.item_type]);
-
-  // Reset the detail view (outline/mind map) when opening a different course.
-  useEffect(() => {
-    setDetailView('outline');
-  }, [selectedCourse?.id, selectedCourse?.item_type]);
 
   // Fetch current user details on mount
   useEffect(() => {
@@ -440,40 +431,6 @@ function App() {
                 </div>
               </div>
 
-              {/* Outline vs Mind Map toggle */}
-              <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1.25rem' }}>
-                {([['outline', 'Outline', List], ['mindmap', 'Mind Map', Network]] as const).map(([key, label, Icon]) => {
-                  const active = detailView === key;
-                  return (
-                    <button
-                      key={key}
-                      onClick={() => setDetailView(key)}
-                      style={{
-                        display: 'inline-flex', alignItems: 'center', gap: '0.4rem',
-                        padding: '0.5rem 1rem', borderRadius: '8px', cursor: 'pointer',
-                        fontWeight: 600, fontSize: '0.85rem', transition: 'all 0.2s',
-                        border: active ? '1px solid rgba(255,107,0,0.5)' : '1px solid rgba(255,255,255,0.08)',
-                        backgroundColor: active ? 'rgba(255,107,0,0.12)' : 'rgba(255,255,255,0.02)',
-                        color: active ? '#ff6b00' : '#a1a1aa',
-                      }}
-                    >
-                      <Icon size={15} /> {label}
-                    </button>
-                  );
-                })}
-              </div>
-
-              {detailView === 'mindmap' ? (
-                selectedCourse.kind === 'short_course' ? (
-                  <MindMap catalogId={selectedCourse.id} />
-                ) : (
-                  <div className={styles.sectionBox} style={{ textAlign: 'center', padding: '3rem 1.5rem', color: '#a1a1aa' }}>
-                    <Network size={36} style={{ color: '#ff6b00', marginBottom: '1rem', opacity: 0.8 }} />
-                    <p style={{ margin: 0, fontSize: '1rem', fontWeight: 600 }}>Mind maps start with short courses</p>
-                    <p style={{ margin: '0.25rem 0 0 0', fontSize: '0.85rem', color: '#71717a' }}>Support for full courses and specializations is coming next.</p>
-                  </div>
-                )
-              ) : (
               <div className={styles.detailBody}>
                 <div className={styles.sectionBox}>
                   <h2>
@@ -724,7 +681,6 @@ function App() {
                   </div>
                 </div>
               </div>
-              )}
             </div>
           ) : (
             /* VIEW: Dashboard */
